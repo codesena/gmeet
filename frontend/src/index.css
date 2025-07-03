@@ -1,0 +1,14 @@
+:root {
+  font-family: "Times New Roman", Times, serif;
+  line-height: 1.5;
+  font-weight: 800;
+  font-size: larger;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

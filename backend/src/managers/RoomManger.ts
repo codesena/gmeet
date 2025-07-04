@@ -1,41 +1,37 @@
-import { initHandlers, User } from "./UserManager";
+import { Room, User } from "../interface/interfaces";
 
-let globalRoomId = 0;
-interface Room {
-  user1: User;
-  user2: User;
-}
 export class RoomManager {
   private rooms: Map<string, Room>;
+
   constructor() {
     this.rooms = new Map<string, Room>();
   }
-  createRoom(user1: User, user2: User) {
-    const roomId = this.generateRoomId();
-    this.rooms.set(roomId.toString(), {
-      user1,
-      user2,
-    });
-    user1.socket.emit("send-offer", {
-      room: roomId,
-    });
+
+  createRoom(roomId: string) {
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, { user: [] });
+    }
   }
 
-  onOffer({ roomId, sdp }: initHandlers) {
-    this.rooms.get(roomId)?.user2.socket.emit("offer", {
-      sdp,
-      roomId,
-    });
+  addUserToRoom(user: User) {
+    if (!this.rooms.has(user.roomId)) {
+      this.createRoom(user.roomId);
+    }
+    const room = this.rooms.get(user.roomId);
+    if (room) room.user.push(user);
   }
 
-  onAnswer({ roomId, sdp }: initHandlers) {
-    this.rooms.get(roomId)?.user1.socket.emit("answer", {
-      sdp,
-      roomId,
-    });
+  removeUserFromRoom(socketId: string, roomId: string) {
+    const room = this.rooms.get(roomId);
+    if (room)
+      room.user = room?.user.filter((user:User) => user.socketId !== socketId);
   }
 
-  generateRoomId() {
-    return globalRoomId++;
+  getRoomUsers(roomId: string): User[] | undefined {
+    return this.rooms.get(roomId)?.user;
+  }
+
+  isRoomExists(roomId: string) {
+    return this.rooms.has(roomId);
   }
 }
